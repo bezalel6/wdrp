@@ -85,9 +85,9 @@ void CALLBACK TimerProc(HWND, UINT, UINT_PTR, DWORD)
 int init() 
 {
     if (IsWindowUnicode(g_plugin.hwndParent))
-        g_lpWndProcOld = (WNDPROC)SetWindowLongW(g_plugin.hwndParent, GWL_WNDPROC, (LONG)WndProc);
+        g_lpWndProcOld = (WNDPROC)SetWindowLongW(g_plugin.hwndParent, GWLP_WNDPROC, (LONG)WndProc);
     else
-        g_lpWndProcOld = (WNDPROC)SetWindowLongA(g_plugin.hwndParent, GWL_WNDPROC, (LONG)WndProc);
+        g_lpWndProcOld = (WNDPROC)SetWindowLongA(g_plugin.hwndParent, GWLP_WNDPROC, (LONG)WndProc);
 
 	g_timer.Initialize(g_plugin.hwndParent, TimerProc);
 
@@ -266,7 +266,7 @@ void PopulateSettingsDialogFields(HWND hWndDlg)
 }
 
 // Dialogue box callback function
-BOOL CALLBACK ConfigDialogProc(HWND hWndDlg, UINT wMessage, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK ConfigDialogProc(HWND hWndDlg, UINT wMessage, WPARAM wParam, LPARAM lParam)
 {
     switch (wMessage)
     {

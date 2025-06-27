@@ -1,45 +1,69 @@
 @echo off
+setlocal enabledelayedexpansion
+
+:: Configurable build mode
 IF NOT [%~1]==[] (
-    set BUILD_CONFIGURATION=%~1
+    set "BUILD_CONFIGURATION=%~1"
+) ELSE (
+    set "BUILD_CONFIGURATION=Release"
 )
-IF NOT DEFINED BUILD_CONFIGURATION set BUILD_CONFIGURATION=Release
 
 echo Building in '%BUILD_CONFIGURATION%' mode
 
-mkdir "../%BUILD_CONFIGURATION%/"
+:: Create output dir
+mkdir "..\%BUILD_CONFIGURATION%" 2>nul
 
-REM Create resource file for the Config/UI
-set winsdk_ver=10.0.17134.0
-"C:\Program Files (x86)\Windows Kits\10\bin\10.0.17134.0\x86\rc.exe" /I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\um" ^
-/I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\shared" Config.rc
-
-REM Set Path/Env variables that cl.exe needs
-set vcvarsall=x86  %winsdk_ver% -vcvars_ver=14.1
-IF exist "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" (
-    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" %vcvarsall%
-) ELSE (
-    call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" %vcvarsall%
+:: Use vswhere to locate latest VS installation
+for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do (
+    set "VSINSTALL=%%i"
 )
-set includepaths=/I "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Tools\MSVC\14.16.27023\include" ^
-/I "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.17134.0\um" ^
-/I "C:\Program Files (x86)\Windows Kits\10\Include\10.0.17134.0\ucrt" ^
-/I "C:/Program Files (x86)/Winamp SDK/Winamp" ^
-/I "../discord-rpc/win32-dynamic/include/"
 
-REM Set CL.exe flags that match the .vcxproj values for Release|win32 https://docs.microsoft.com/en-us/visualstudio/msbuild/cl-task?view=vs-2019
-REM DLL will be located a directory lower than this batch file, to match Visual Studio implementation
-IF NOT BUILD_CONFIGURATION == Release (
-    REM Optimization disabled, no function level linking, no intrinsic functions
-    set buildflags=/Od /Yc /Gy /Oi /W3
-) ELSE (
-    set buildflags=/O2 /Gy /W3
+if not defined VSINSTALL (
+    echo Visual Studio with C++ tools not found. Aborting.
+    exit /b 1
 )
-set compilerflags=/nologo %buildflags% /DUNICODE /DWIN32 /DDEBUG /DDISCORDRICHPRESENCE_EXPORTS /D_WINDOWS /D_USRDLL /D_WINDLL /EHsc /std:c++14 %includepaths%
-set linkerflags=/DLL /OUT:"../%BUILD_CONFIGURATION%/gen_DiscordRichPresence.dll" User32.LIB Config.res
 
-echo Using build flags: %buildflags%
+:: Setup environment using vcvarsall
+call "%VSINSTALL%\VC\Auxiliary\Build\vcvarsall.bat" x86
 
-cl.exe %compilerflags% *.cpp /link %linkerflags%
+:: Windows SDK version and include path
+for /f "delims=" %%v in ('reg query "HKLM\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0" /v ProductVersion 2^>nul ^| find "REG_SZ"') do (
+    for /f "tokens=3" %%x in ("%%v") do set "SDKVER=%%x"
+)
 
-REM Cleanup
-del *.ilk *.obj *.pdb *.lib *.pch *.exp Config.res RCa22352
+if not defined SDKVER (
+    set "SDKVER=10.0.26100.0"
+)
+
+:: Compile resource file
+"%WindowsSdkDir%bin\%SDKVER%\x86\rc.exe" ^
+    /I "%WindowsSdkDir%Include\%SDKVER%\um" ^
+    /I "%WindowsSdkDir%Include\%SDKVER%\shared" Config.rc
+
+:: Include paths
+set INCLUDE_PATHS=/I "%VCToolsInstallDir%include" ^
+ /I "%WindowsSdkDir%Include\%SDKVER%\ucrt" ^
+ /I "%WindowsSdkDir%Include\%SDKVER%\um" ^
+ /I "%WindowsSdkDir%Include\%SDKVER%\shared" ^
+ /I "C:\Program Files (x86)\Winamp SDK\Winamp" ^
+ /I "C:\Users\bezal\OneDrive\Documents\discord-rpc\win32-dynamic\include"
+
+
+:: Set build flags
+IF /I "%BUILD_CONFIGURATION%"=="Release" (
+    set "CLFLAGS=/O2 /Gy /W3"
+) ELSE (
+    set "CLFLAGS=/Od /Yc /Gy /Oi /W3"
+)
+
+set "COMMONFLAGS=/nologo !CLFLAGS! /DUNICODE /DWIN32 /DDEBUG /DDISCORDRICHPRESENCE_EXPORTS /D_WINDOWS /D_USRDLL /D_WINDLL /EHsc /std:c++14 !INCLUDE_PATHS!"
+set "LINKFLAGS=/DLL /OUT:..\%BUILD_CONFIGURATION%\gen_DiscordRichPresence.dll User32.lib Config.res"
+
+echo Using compiler flags: !CLFLAGS!
+
+:: Compile
+cl.exe !COMMONFLAGS! *.cpp /link !LINKFLAGS!
+
+:: Cleanup
+del /q *.ilk *.obj *.pdb *.lib *.pch *.exp Config.res 2>nul
+endlocal

@@ -1,0 +1,38 @@
+﻿  stdafx.cpp
+  dllmain.cpp
+  DiscordRichPresence.cpp
+  PresenceInfo.cpp
+E:\SharedCo\winamp-plugin\DiscordRichPresence\DiscordRichPresence.cpp(65,14): warning C4244: 'initializing': conversion from 'LRESULT' to 'int', possible loss of data
+  (compiling source file '/DiscordRichPresence.cpp')
+  
+E:\SharedCo\winamp-plugin\DiscordRichPresence\DiscordRichPresence.cpp(73,24): warning C4244: 'initializing': conversion from 'LRESULT' to 'int', possible loss of data
+  (compiling source file '/DiscordRichPresence.cpp')
+  
+E:\SharedCo\winamp-plugin\DiscordRichPresence\DiscordRichPresence.cpp(88,85): warning C4311: 'type cast': pointer truncation from 'LRESULT (__cdecl *)(HWND,UINT,WPARAM,LPARAM)' to 'LONG'
+  (compiling source file '/DiscordRichPresence.cpp')
+  
+E:\SharedCo\winamp-plugin\DiscordRichPresence\DiscordRichPresence.cpp(88,85): warning C4302: 'type cast': truncation from 'LRESULT (__cdecl *)(HWND,UINT,WPARAM,LPARAM)' to 'LONG'
+  (compiling source file '/DiscordRichPresence.cpp')
+  
+E:\SharedCo\winamp-plugin\DiscordRichPresence\DiscordRichPresence.cpp(88,26): warning C4312: 'type cast': conversion from 'LONG' to 'WNDPROC' of greater size
+  (compiling source file '/DiscordRichPresence.cpp')
+  
+E:\SharedCo\winamp-plugin\DiscordRichPresence\DiscordRichPresence.cpp(90,85): warning C4311: 'type cast': pointer truncation from 'LRESULT (__cdecl *)(HWND,UINT,WPARAM,LPARAM)' to 'LONG'
+  (compiling source file '/DiscordRichPresence.cpp')
+  
+E:\SharedCo\winamp-plugin\DiscordRichPresence\DiscordRichPresence.cpp(90,85): warning C4302: 'type cast': truncation from 'LRESULT (__cdecl *)(HWND,UINT,WPARAM,LPARAM)' to 'LONG'
+  (compiling source file '/DiscordRichPresence.cpp')
+  
+E:\SharedCo\winamp-plugin\DiscordRichPresence\DiscordRichPresence.cpp(90,26): warning C4312: 'type cast': conversion from 'LONG' to 'WNDPROC' of greater size
+  (compiling source file '/DiscordRichPresence.cpp')
+  
+E:\SharedCo\winamp-plugin\DiscordRichPresence\DiscordRichPresence.cpp(149,23): warning C4244: 'initializing': conversion from 'LRESULT' to 'LONG', possible loss of data
+  (compiling source file '/DiscordRichPresence.cpp')
+  
+  SettingsFile.cpp
+     Creating library E:\SharedCo\winamp-plugin\x64\Release\DiscordRichPresence.lib and object E:\SharedCo\winamp-plugin\x64\Release\DiscordRichPresence.exp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 364 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  DiscordRichPresence.vcxproj -> E:\SharedCo\winamp-plugin\x64\Release\DiscordRichPresence.dll
